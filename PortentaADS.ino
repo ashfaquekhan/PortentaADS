@@ -1,22 +1,12 @@
-/*Developed by Joel Murphy and Conor Russomanno (Summer 2013)
-  This example uses the ADS1299 Arduino Library, a software bridge between the ADS1299 chip and 
-  Arduino. See http://www.ti.com/product/ads1299 for more information about the device and the README
-  folder in the ADS1299 directory for more information about the library.
+/*
   
-  This program reads all the ADS1299 registers, modifies CONFIG3, then modifies all 8 channel registers.
-  Yup, it's a simple SPI link hello world functional test. When verbose is true, there will be Serial feedback.
-  NOTE: the datasheet will tell you that the Channel Set Registers (0x05 to 0x0C) default to 0x60. Don't believe it.
-  The default value for these locations is 0x61. 
-  
-  
-  Arduino Uno - Pin Assignments
-  SCK = 13
-  MISO [DOUT] = 12
-  MOSI [DIN] = 11
-  CS = 10; 
-  RESET = 9;
-  DRDY = 8;
-  
+  Arduino Portenta H7 - Pin Assignments
+  SCK = PI_1
+  MISO [DOUT] = PC_2
+  MOSI [DIN] = PC_3
+  CS =  PI_0
+  RESET = PH_7
+  DRDY = PH_8
 */
 
 #include "PortentaADS1299.h"
