@@ -1,5 +1,3 @@
-
-
 #ifndef ____PortentaADS1299__
 #define ____PortentaADS1299__
 
@@ -42,8 +40,9 @@ public:
     byte transfer(byte _data);
 
     //configuration
-    int DRDY, CS;     // pin numbers for DRDY and CS 
-    int DIVIDER;    // select SPI SCK frequency
+    int FREQ;
+//    int DRDY, CS;     // pin numbers for DRDY and CS 
+//    int DIVIDER;    // select SPI SCK frequency
     int stat_1, stat_2;    // used to hold the status register for boards 1 and 2
     byte regData [24];  // array is used to mirror register data
     long channelData [16];  // array used when reading channel data board 1+2
