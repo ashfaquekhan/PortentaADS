@@ -1,10 +1,6 @@
 //
 //  Definitions.h
 //  
-//
-//  Created by Conor Russomanno, Luke Travis, and Joel Murphy. Summer 2013.
-//
-//
 
 #ifndef _Definitions_h
 #define _Definitions_h
