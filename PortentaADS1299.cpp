@@ -1,88 +1,153 @@
+//
+//  PortentaADS1299DIAISY.cpp   ARDUINO LIBRARY FOR COMMUNICATING WITH TWO
+//  DAISY-CHAINED PortentaADS1299 BOARDS
+//  
+//  Created by Conor Russomanno, Luke Travis, and Joel Murphy. Summer, 2013
+//
+//  Extended by Chip Audette through April 2014
+//
 
+/* Portenta SPI pins             ADS1299   */        
+#define PENA_SCK    9   //PI_1      3
+#define PENA_MISO   10  //PC_2     13
+#define PENA_MOSI   8   //PC_3     11
+#define PENA_CS    7   //PI_0       1
+#define PENA_RESET  1   //PK_1      8
+#define PENA_DRDY   0   //PH_15    15
 //#include "pins_arduino.h"
 #include "PortentaADS1299.h"
-#include <SPI.h>
-void PortentaADS1299::initialize(int _DRDY, int _RST, int _CS, int _FREQ, boolean _isDaisy){
 
-
+// void PortentaADS1299::initialize(int _DRDY, int _RST, int _CS, int _FREQ, boolean _isDaisy){
+void PortentaADS1299::initialize(int _FREQ, boolean _isDaisy){
   isDaisy = _isDaisy;
-  DRDY = _DRDY;
-  CS = _CS;
+//  DRDY = _DRDY;
+//  PENA_CS = _CS;
   int FREQ = _FREQ;
-  int RST = _RST;
+//  int RST = _RST;
   
   delay(50);        // recommended power up sequence requiers Tpor (~32mS)  
-  pinMode(RST,OUTPUT);
-  pinMode(RST,LOW);
+  pinMode(PENA_RESET,OUTPUT);
+  pinMode(PENA_RESET,LOW);
   delayMicroseconds(4); // toggle reset pin
-  pinMode(RST,HIGH);
+  pinMode(PENA_RESET,HIGH);
   delayMicroseconds(20);  // recommended to wait 18 Tclk before using device (~8uS);
   
 
     // **** ----- SPI Setup ----- **** //
-//    pinMode(PIN_SPI_SS, OUTPUT);
-//    digitalWrite(PIN_SPI_SS,HIGH);
-    SPI.begin();
-    SPI.beginTransaction(SPISettings(FREQ*1000000ul, MSBFIRST, SPI_MODE0));
+  SPI.begin();
+  // set as master and enable SPI
+      // MbedSPI SPI(PENA_MISO, PENA_MOSI, PENA_SCK);
+    // SPI.format(8,1); // 8 bits, mode 1 (clock polarity = 0; clock phase = 1)
+
+    // // set bit order
+    // // Mbed SPI library uses MSB by default
+
+    // // set clock divider
+    // switch (FREQ){
+    // case 8:
+      // SPI.frequency(8000000); // 8MHz
+      // break;
+    // case 4:
+      // SPI.frequency(4000000); // 4MHz
+      // break;
+    // case 1:
+      // SPI.frequency(1000000); // 1MHz
+      // break;
+    // default:
+      // break;
+    // }
+    // Set direction register for SCK and MOSI pin.
+    // MISO pin automatically overrides to INPUT.
+    // When the SS pin is set as OUTPUT, it can be used as
+    // a general purpose output port (it doesn't influence
+    // SPI operations).
+    
+    // pinMode(PENA_SCK, OUTPUT);
+    // pinMode(PENA_MOSI, OUTPUT);
+    // pinMode(PENA_CS, OUTPUT);
+  
+    
+    // digitalWrite(PENA_SCK, LOW);
+    // digitalWrite(PENA_MOSI, LOW);
+    //digitalWrite(PENA_CS, HIGH);
+    
+    // // set as master and enable SPI
+    // SPCR |= _BV(MSTR);
+    // SPCR |= _BV(SPE);
+    // // set bit order
+    // SPCR &= ~(_BV(DORD)); ////SPI data format is MSB (pg. 25)
+  // // set data mode
+    // SPCR = (SPCR & ~SPI_MODE_MASK) | SPI_DATA_MODE; //clock polarity = 0; clock phase = 1 (pg. 8)
+    // // set clock divider
+  // switch (FREQ){
+    // case 8:
+      // DIVIDER = SPI_CLOCK_DIV_2;
+      // break;
+    // case 4:
+      // DIVIDER = SPI_CLOCK_DIV_4;
+      // break;
+    // case 1:
+      // DIVIDER = SPI_CLOCK_DIV_16;
+      // break;
+    // default:
+      // break;
+  // }
+    // SPCR = (SPCR & ~SPI_CLOCK_MASK) | (DIVIDER);  // set SCK frequency  
+    // SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | (DIVIDER); // by dividing 16MHz system clock
+    
     // **** ----- End of SPI Setup ----- **** //
     
     // initalize the  data ready chip select and reset pins:
-    pinMode(DRDY, INPUT);
-//    pinMode(CS, OUTPUT);
-//    digitalWrite(CS,HIGH);
-  digitalWrite(RST,HIGH);
+    pinMode(PENA_DRDY, INPUT);
+    // pinMode(PENA_CS, OUTPUT);
+  
+  // digitalWrite(PENA_CS,HIGH);   
+  digitalWrite(PENA_RESET,HIGH);
 }
 
 //System Commands
 void PortentaADS1299::WAKEUP() {
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_WAKEUP);
-    ////SPI.endTransaction();  
-    delayMicroseconds(4);     //must wait 4 tCLK cycles before sending another command (Datasheet, pg. 35)
+    //digitalWrite(PENA_CS, LOW); 
+    transfer(_WAKEUP);
+    //digitalWrite(PENA_CS, HIGH); 
+    delayMicroseconds(3);     //must wait 4 tCLK cycles before sending another command (Datasheet, pg. 35)
 }
 
 void PortentaADS1299::STANDBY() {   // only allowed to send WAKEUP after sending STANDBY
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_STANDBY);
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_STANDBY);
+    //digitalWrite(PENA_CS, HIGH);
 }
 
 void PortentaADS1299::RESET() {     // reset all the registers to default settings
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_RESET);
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_RESET);
     delayMicroseconds(12);    //must wait 18 tCLK cycles to execute this command (Datasheet, pg. 35)
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, HIGH);
 }
 
 void PortentaADS1299::START() {     //start data conversion 
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_START);
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_START);
+    //digitalWrite(PENA_CS, HIGH);
 }
 
 void PortentaADS1299::STOP() {      //stop data conversion
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_STOP);
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_STOP);
+    //digitalWrite(PENA_CS, HIGH);
 }
 
 void PortentaADS1299::RDATAC() {
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_RDATAC);
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_RDATAC);
+    //digitalWrite(PENA_CS, HIGH);
   delayMicroseconds(3);   
 }
 void PortentaADS1299::SDATAC() {
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1)); 
-    
-    SPI.transfer(_SDATAC);
-    //SPI.endTransaction(); 
+    //digitalWrite(PENA_CS, LOW);
+    transfer(_SDATAC);
+    //digitalWrite(PENA_CS, HIGH);
   delayMicroseconds(3);   //must wait 4 tCLK cycles after executing this command (Datasheet, pg. 37)
 }
 
@@ -99,12 +164,11 @@ byte PortentaADS1299::getDeviceID() {     // simple hello world com check
 
 byte PortentaADS1299::RREG(byte _address) {   //  reads ONE register at _address
     byte opcode1 = _address + 0x20;   //  RREG expects 001rrrrr where rrrrr = _address
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));          //  open SPI
-    
-    SPI.transfer(opcode1);          //  opcode1
-    SPI.transfer(0x00);           //  opcode2
-    regData[_address] = SPI.transfer(0x00);//  update mirror location with returned byte
-    ////SPI.endTransaction();        //  close SPI 
+    //digitalWrite(PENA_CS, LOW);         //  open SPI
+    transfer(opcode1);          //  opcode1
+    transfer(0x00);           //  opcode2
+    regData[_address] = transfer(0x00);//  update mirror location with returned byte
+    //digitalWrite(PENA_CS, HIGH);      //  close SPI 
   if (verbose){           //  verbose output
     printRegisterName(_address);
     printHex(_address);
@@ -127,14 +191,13 @@ void PortentaADS1299::RREGS(byte _address, byte _numRegistersMinusOne) {
 //    regData[i] = 0;         //  reset the regData array
 //  }
     byte opcode1 = _address + 0x20;   //  RREG expects 001rrrrr where rrrrr = _address
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));          //  open SPI
-    
-    SPI.transfer(opcode1);          //  opcode1
-    SPI.transfer(_numRegistersMinusOne);  //  opcode2
+    //digitalWrite(PENA_CS, LOW);         //  open SPI
+    transfer(opcode1);          //  opcode1
+    transfer(_numRegistersMinusOne);  //  opcode2
     for(int i = 0; i <= _numRegistersMinusOne; i++){
-        regData[_address + i] = SPI.transfer(0x00);   //  add register byte to mirror array
+        regData[_address + i] = transfer(0x00);   //  add register byte to mirror array
     }
-    ////SPI.endTransaction();        //  close SPI
+    //digitalWrite(PENA_CS, HIGH);      //  close SPI
   if(verbose){            //  verbose output
     for(int i = 0; i<= _numRegistersMinusOne; i++){
       printRegisterName(_address + i);
@@ -154,12 +217,11 @@ void PortentaADS1299::RREGS(byte _address, byte _numRegistersMinusOne) {
 
 void PortentaADS1299::WREG(byte _address, byte _value) {  //  Write ONE register at _address
     byte opcode1 = _address + 0x40;   //  WREG expects 010rrrrr where rrrrr = _address
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));          //  open SPI
-    
-    SPI.transfer(opcode1);          //  Send WREG command & address
-    SPI.transfer(0x00);           //  Send number of registers to read -1
-    SPI.transfer(_value);         //  Write the value to the register
-    ////SPI.endTransaction();        //  close SPI
+    //digitalWrite(PENA_CS, LOW);         //  open SPI
+    transfer(opcode1);          //  Send WREG command & address
+    transfer(0x00);           //  Send number of registers to read -1
+    transfer(_value);         //  Write the value to the register
+    //digitalWrite(PENA_CS, HIGH);      //  close SPI
   regData[_address] = _value;     //  update the mirror array
   if(verbose){            //  verbose output
     Serial.print(F("Register "));
@@ -170,14 +232,13 @@ void PortentaADS1299::WREG(byte _address, byte _value) {  //  Write ONE register
 
 void PortentaADS1299::WREGS(byte _address, byte _numRegistersMinusOne) {
     byte opcode1 = _address + 0x40;   //  WREG expects 010rrrrr where rrrrr = _address
-   // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));          //  open SPI
-    
-    SPI.transfer(opcode1);          //  Send WREG command & address
-    SPI.transfer(_numRegistersMinusOne);  //  Send number of registers to read -1 
+    //digitalWrite(PENA_CS, LOW);         //  open SPI
+    transfer(opcode1);          //  Send WREG command & address
+    transfer(_numRegistersMinusOne);  //  Send number of registers to read -1 
   for (int i=_address; i <=(_address + _numRegistersMinusOne); i++){
-    SPI.transfer(regData[i]);     //  Write to the registers
+    transfer(regData[i]);     //  Write to the registers
   } 
-  digitalWrite(CS,HIGH);        //  close SPI
+  digitalWrite(PENA_CS,HIGH);       //  close SPI
   if(verbose){
     Serial.print(F("Registers "));
     printHex(_address); Serial.print(F(" to "));
@@ -190,18 +251,17 @@ void PortentaADS1299::WREGS(byte _address, byte _numRegistersMinusOne) {
 void PortentaADS1299::updateChannelData(){
   byte inByte;
   int nchan=8;  //assume 8 channel.  If needed, it automatically changes to 16 automatically in a later block.
- // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));        //  open SPI
+  //digitalWrite(PENA_CS, LOW);       //  open SPI
   
   // READ CHANNEL DATA FROM FIRST ADS IN DAISY LINE
-    
   for(int i=0; i<3; i++){     //  read 3 byte status register from ADS 1 (1100+LOFF_STATP+LOFF_STATN+GPIO[7:4])
-    inByte = SPI.transfer(0x00);
+    inByte = transfer(0x00);
     stat_1 = (stat_1<<8) | inByte;        
   }
   
   for(int i = 0; i<8; i++){
     for(int j=0; j<3; j++){   //  read 24 bits of channel data from 1st ADS in 8 3 byte chunks
-      inByte = SPI.transfer(0x00);
+      inByte = transfer(0x00);
       channelData[i] = (channelData[i]<<8) | inByte;
     }
   }
@@ -210,19 +270,19 @@ void PortentaADS1299::updateChannelData(){
     nchan = 16;
     // READ CHANNEL DATA FROM SECOND ADS IN DAISY LINE
     for(int i=0; i<3; i++){     //  read 3 byte status register from ADS 2 (1100+LOFF_STATP+LOFF_STATN+GPIO[7:4])
-      inByte = SPI.transfer(0x00);
+      inByte = transfer(0x00);
       stat_2 = (stat_1<<8) | inByte;        
     }
     
     for(int i = 8; i<16; i++){
       for(int j=0; j<3; j++){   //  read 24 bits of channel data from 2nd ADS in 8 3 byte chunks
-        inByte = SPI.transfer(0x00);
+        inByte = transfer(0x00);
         channelData[i] = (channelData[i]<<8) | inByte;
       }
     }
   }
   
-  ////SPI.endTransaction();        //  close SPI
+  //digitalWrite(PENA_CS, HIGH);        //  close SPI
   
   //reformat the numbers
   for(int i=0; i<nchan; i++){     // convert 3 byte 2's compliment to 4 byte 2's compliment 
@@ -241,18 +301,18 @@ void PortentaADS1299::RDATA() {       //  use in Stop Read Continuous mode when 
   stat_1 = 0;             //  clear the status registers
   stat_2 = 0; 
   int nchan = 8;  //assume 8 channel.  If needed, it automatically changes to 16 automatically in a later block.
- // SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));        //  open SPI
-  SPI.transfer(_RDATA);
+  //digitalWrite(PENA_CS, LOW);       //  open SPI
+  transfer(_RDATA);
   
   // READ CHANNEL DATA FROM FIRST ADS IN DAISY LINE
   for(int i=0; i<3; i++){     //  read 3 byte status register (1100+LOFF_STATP+LOFF_STATN+GPIO[7:4])
-    inByte = SPI.transfer(0x00);
+    inByte = transfer(0x00);
     stat_1 = (stat_1<<8) | inByte;        
   }
   
   for(int i = 0; i<8; i++){
     for(int j=0; j<3; j++){   //  read 24 bits of channel data from 1st ADS in 8 3 byte chunks
-      inByte = SPI.transfer(0x00);
+      inByte = transfer(0x00);
       channelData[i] = (channelData[i]<<8) | inByte;
     }
   }
@@ -262,13 +322,13 @@ void PortentaADS1299::RDATA() {       //  use in Stop Read Continuous mode when 
     
     // READ CHANNEL DATA FROM SECOND ADS IN DAISY LINE
     for(int i=0; i<3; i++){     //  read 3 byte status register (1100+LOFF_STATP+LOFF_STATN+GPIO[7:4])
-      inByte = SPI.transfer(0x00);
+      inByte = transfer(0x00);
       stat_2 = (stat_1<<8) | inByte;        
     }
     
     for(int i = 8; i<16; i++){
       for(int j=0; j<3; j++){   //  read 24 bits of channel data from 2nd ADS in 8 3 byte chunks
-        inByte = SPI.transfer(0x00);
+        inByte = transfer(0x00);
         channelData[i] = (channelData[i]<<8) | inByte;
       }
     }
@@ -284,6 +344,8 @@ void PortentaADS1299::RDATA() {       //  use in Stop Read Continuous mode when 
   
     
 }
+
+
 
 // String-Byte converters for RREG and WREG
 void PortentaADS1299::printRegisterName(byte _address) {
@@ -362,14 +424,28 @@ void PortentaADS1299::printRegisterName(byte _address) {
 }
 
 //SPI communication methods
-// byte PortentaADS1299::SPI.transfer(byte _data) {
-//  cli();
-//     SPDR = _data;
-//     while (!(SPSR & _BV(SPIF)))
-//         ;
-//  sei();
-//     return SPDR;
+// byte PortentaADS1299::transfer(byte _data) {
+  // cli();
+    // SPDR = _data;
+    // while (!(SPSR & _BV(SPIF)))
+        // ;
+  // sei();
+    // return SPDR;
 // }
+// byte PortentaADS1299::transfer(byte _data) {
+  // noInterrupts();
+  // byte result = SPI.transfer(_data);
+  // interrupts();
+  // return result;
+// }
+
+byte PortentaADS1299::transfer(byte _data) {
+  
+  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));
+  byte result = SPI.transfer(_data);
+  SPI.endTransaction();
+  return result;
+}
 
 // Used for printing HEX in verbose feedback mode
 void PortentaADS1299::printHex(byte _data){
@@ -381,3 +457,5 @@ void PortentaADS1299::printHex(byte _data){
 //-------------------------------------------------------------------//
 //-------------------------------------------------------------------//
 //-------------------------------------------------------------------//
+
+
