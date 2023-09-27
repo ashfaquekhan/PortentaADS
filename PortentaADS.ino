@@ -1,13 +1,4 @@
-/*
-  
-  Arduino Portenta H7 - Pin Assignments
-  SCK = PI_1
-  MISO [DOUT] = PC_2
-  MOSI [DIN] = PC_3
-  CS =  PI_0
-  RESET = PH_7
-  DRDY = PH_8
-*/
+
 
 #include "PortentaADS1299.h"
 PortentaADS1299 ADS;
@@ -21,7 +12,7 @@ boolean testing = false;               // this flag is set in serialEvent on rec
 
 void setup() {
   // don't put anything before the initialization routine for recommended POR  
-  ADS.initialize(PH_8,PH_7,PI_0,4,0); // (DRDY pin, RST pin, CS pin, SCK frequency in MHz);
+  ADS.initialize(4,0); // (DRDY pin, RST pin, CS pin, SCK frequency in MHz);
   //void PortentaADS1299::initialize(int _DRDY, int _RST, int _CS, int _FREQ, boolean _isDaisy){
                // this flag is set in serialEvent on reciept of prompt
 
