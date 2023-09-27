@@ -1,24 +1,14 @@
-//
-//  PortentaADS1299.h
-//  Part of the Arduino Library
-//  Created by Conor Russomanno, Luke Travis, and Joel Murphy. Summer 2013.
-//
-//  Modified by Chip Audette through April 2014
-//
+
 
 #ifndef ____PortentaADS1299__
 #define ____PortentaADS1299__
-/*
-#include <stdio.h>
-#include <Arduino.h>
-//#include <avr/pgmspace.h>
-#include "Definitions.h"
-*/
+
 #include <stdio.h>
 #include <SPI.h>
-#include <Arduino.h>
-#include <mbed.h>
+//#include <Arduino.h>
+#include "mbed.h"
 #include "Definitions.h"
+
 
 class PortentaADS1299 {
 public:
