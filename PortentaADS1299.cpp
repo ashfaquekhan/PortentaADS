@@ -1,7 +1,3 @@
-
-
-
-
 //#include "pins_arduino.h"
 #include "PortentaADS1299.h"
 
@@ -9,7 +5,7 @@ void PortentaADS1299::initialize(int _FREQ, boolean _isDaisy){
   isDaisy = _isDaisy;
   // PENA_DRDY = _PENA_DRDY;
   // PENA_CS = _CS;
-  int FREQ = _FREQ;
+  FREQ = _FREQ;
   
   delay(50);        // recommended power up sequence requiers Tpor (~32mS)  
   pinMode(PENA_RESET,OUTPUT);
@@ -276,8 +272,6 @@ void PortentaADS1299::RDATA() {       //  use in Stop Read Continuous mode when 
     
 }
 
-
-
 // String-Byte converters for RREG and WREG
 void PortentaADS1299::printRegisterName(byte _address) {
     if(_address == ID){
@@ -364,7 +358,7 @@ void PortentaADS1299::printRegisterName(byte _address) {
     // return SPDR;
 // }
 byte PortentaADS1299::transfer(byte _data) {
-  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE1));
+  SPI.beginTransaction(SPISettings(FREQ*1000000ul, MSBFIRST, SPI_MODE1));
     auto ret = SPI.transfer(_data);
   SPI.endTransaction();
   return ret;
