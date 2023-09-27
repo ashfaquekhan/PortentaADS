@@ -8,7 +8,7 @@ unsigned long thatTime;
 unsigned long elapsedTime;
 int resetPin = 9;                      // pin 9 used to start conversion in Read Data Continuous mode
 int sampleCounter = 0;                 // used to time the tesing loop
-boolean testing = false;               // this flag is set in serialEvent on reciept of prompt
+boolean testing = true;               // this flag is set in serialEvent on reciept of prompt
 
 void setup() {
   // don't put anything before the initialization routine for recommended POR  
@@ -60,8 +60,8 @@ void loop(){
   
   if (testing){
     //Serial.println("entering test loop");
-    while(digitalRead(8)){            // watch the DRDY pin
-        Serial.println("DrdY");
+    while(digitalRead(PENA_DRDY)){            // watch the DRDY pin
+//        Serial.println("DrdY");
       }
     ADS.updateChannelData();          // update the channelData array
 //    int ads_value_1 =("Channel 1",ADS.channelData[0]);
