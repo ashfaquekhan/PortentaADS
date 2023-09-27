@@ -1,19 +1,31 @@
+//
+//  PortentaADS1299.h
+//  Part of the Arduino Library
+//  Created by Conor Russomanno, Luke Travis, and Joel Murphy. Summer 2013.
+//
+//  Modified by Chip Audette through April 2014
+//
 
 #ifndef ____PortentaADS1299__
 #define ____PortentaADS1299__
-
+/*
 #include <stdio.h>
 #include <Arduino.h>
+//#include <avr/pgmspace.h>
 #include "Definitions.h"
-
-
+*/
+#include <stdio.h>
+#include <SPI.h>
+#include <Arduino.h>
+#include <mbed.h>
+#include "Definitions.h"
 
 class PortentaADS1299 {
 public:
     
-    void initialize(int _DRDY, int _RST, int _CS, int _FREQ, boolean _isDaisy);
-   
-    //ADS1299 SPI Command Definitions (Datasheet, p35)
+    void initialize(int _FREQ, boolean _isDaisy);
+    
+    //PortentaADS1299 SPI Command Definitions (Datasheet, p35)
     //System Commands
     void WAKEUP();
     void STANDBY();
@@ -37,11 +49,11 @@ public:
     void updateChannelData();
     
     //SPI Transfer function
-    // byte transfer(byte _data);
+    byte transfer(byte _data);
 
     //configuration
     int DRDY, CS;     // pin numbers for DRDY and CS 
-    // int DIVIDER;   // select SPI SCK frequency
+    int DIVIDER;    // select SPI SCK frequency
     int stat_1, stat_2;    // used to hold the status register for boards 1 and 2
     byte regData [24];  // array is used to mirror register data
     long channelData [16];  // array used when reading channel data board 1+2
