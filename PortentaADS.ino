@@ -47,36 +47,72 @@ void setup() {
   Serial.begin(115200);
   //Serial.println("ADS1299-Arduino UNO Example 2"); 
   delay(2000);             
+//========================================================================================================================================
+//  ADS.verbose = true;      // when verbose is true, there will be Serial feedback 
+//  ADS.RESET();             // send RESET command to default all registers
+//  ADS.SDATAC();            // exit Read Data Continuous mode to communicate with ADS
+//  //ADS.WREG(ID,0b00000001);
+//  //ADS.RREG(ID);
+//  ADS.WREG(CONFIG1,0b11010110);
+//  ADS.WREG(CONFIG2,0b11010101);
+//  ADS.WREG(CONFIG3,0b11001010);
+//  ADS.WREG(CH1SET,0b10100000);
+//  ADS.WREG(CH2SET,0b00100000);
+//  ADS.WREG(CH3SET,0b00100000);
+//  ADS.WREG(CH4SET,0b00100000);
+//  ADS.WREG(CH5SET,0b00100000);
+//  ADS.WREG(CH6SET,0b00100000);
+//  ADS.WREG(CH7SET,0b00100000);
+//  ADS.WREG(CH8SET,0b00100000);
+//  ADS.WREG(BIAS_SENSP,0b11111111);
+//  ADS.WREG(BIAS_SENSN,0b11111111);
+//  ADS.WREG(LOFF_SENSP,0x00);
+//  ADS.WREG(LOFF_SENSN,0x00);
+//  //ADS.WREG(MISC1,0b00100000);
+//  ADS.WREG(CONFIG4,0x02);
+//  
+//  ADS.RREGS(0x00,0x17);     // read all registers starting at ID and ending at CONFIG4
+////  ADS.WREG(CONFIG3,0xE0);  // enable internal reference buffer, for fun
+////  ADS.RREG(CONFIG3);       // verify write
+//  ADS.RDATAC();            // enter Read Data Continuous mode
+//  ADS.START();                    // start sampling at the default rate
 
-  ADS.verbose = true;      // when verbose is true, there will be Serial feedback 
-  ADS.RESET();             // send RESET command to default all registers
-  ADS.SDATAC();            // exit Read Data Continuous mode to communicate with ADS
-  //ADS.WREG(ID,0b00000001);
-  //ADS.RREG(ID);
-  ADS.WREG(CONFIG1,0b11010110);
-  ADS.WREG(CONFIG2,0b11010101);
-  ADS.WREG(CONFIG3,0b11001010);
-  ADS.WREG(CH1SET,0b10100000);
-  ADS.WREG(CH2SET,0b00100000);
-  ADS.WREG(CH3SET,0b00100000);
-  ADS.WREG(CH4SET,0b00100000);
-  ADS.WREG(CH5SET,0b00100000);
-  ADS.WREG(CH6SET,0b00100000);
-  ADS.WREG(CH7SET,0b00100000);
-  ADS.WREG(CH8SET,0b00100000);
-  ADS.WREG(BIAS_SENSP,0b11111111);
+//------------------------------------------------EXPERIMENTAL----------------------------------------------------------------------
+
+  ADS.verbose = true;      // Enable verbose mode for serial feedback 
+  ADS.RESET();             // Send RESET command to default all registers
+  ADS.SDATAC();            // Exit Read Data Continuous mode to communicate with ADS
+
+  ADS.WREG(CONFIG1,0b00000101); // Write to CONFIG1 register, set data rate to 256 SPS
+  ADS.WREG(CONFIG2,0b11010101); // Write to CONFIG2 register
+  ADS.WREG(CONFIG3,0b11001100); // Write to CONFIG3 register, enable bias measurement and internal reference buffer
+
+  // Write to CHxSET registers, enable all channels and connect them to normal electrode input
+  ADS.WREG(CH1SET,0b00000000); // Enable channel 1
+  ADS.WREG(CH2SET,0b00000000); // Enable channel 2
+  ADS.WREG(CH3SET,0b00000000); // Enable channel 3
+  ADS.WREG(CH4SET,0b00000000); // Enable channel 4
+  ADS.WREG(CH5SET,0b00000000); // Enable channel 5
+  ADS.WREG(CH6SET,0b00000000); // Enable channel 6
+  ADS.WREG(CH7SET,0b00000000); // Enable channel 7
+  ADS.WREG(CH8SET,0b00000000); // Enable channel 8
+
+  // Write to BIAS_SENSP and BIAS_SENSN registers, select all channels for bias drive signal
+  ADS.WREG(BIAS_SENSP,0b11111111); 
   ADS.WREG(BIAS_SENSN,0b11111111);
-  ADS.WREG(LOFF_SENSP,0x00);
-  ADS.WREG(LOFF_SENSN,0x00);
-  //ADS.WREG(MISC1,0b00100000);
-  ADS.WREG(CONFIG4,0x02);
+
+  // Write to LOFF_SENSP and LOFF_SENSN registers, enable lead-off detection on all channels
+  ADS.WREG(LOFF_SENSP,0b11111111);
+  ADS.WREG(LOFF_SENSN,0b11111111);
+
+  ADS.WREG(CONFIG4,0x02); // Write to CONFIG4 register
   
-  ADS.RREGS(0x00,0x17);     // read all registers starting at ID and ending at CONFIG4
-//  ADS.WREG(CONFIG3,0xE0);  // enable internal reference buffer, for fun
-//  ADS.RREG(CONFIG3);       // verify write
-  ADS.RDATAC();            // enter Read Data Continuous mode
-  ADS.START();                    // start sampling at the default rate
-  
+  ADS.RREGS(0x00,0x17);     // Read all registers starting at ID and ending at CONFIG4
+
+  ADS.RDATAC();            // Enter Read Data Continuous mode
+  ADS.START();             // Start the ADS1299 device
+
+//=================================================================================================================================  
   //Serial.println("Press 'x' to begin test");    // ask for prompt
 } // end of setup
 unsigned long old_time;
@@ -139,9 +175,9 @@ void loop(){
 //      Serial.print(ads_value_8f);
 //      Serial.print("\t");
 //-----------------------------------------
-      Serial.print(ads_value_3f);
-      Serial.print(" ");
-      Serial.println(ads_value_4f);
+      Serial.println(ads_value_3f);
+//      Serial.print(",");
+//      Serial.println(ads_value_4f);
 //-----------------------------------------
 //      Serial.print(ads_value_3f+8);
 //      Serial.print("\t");
