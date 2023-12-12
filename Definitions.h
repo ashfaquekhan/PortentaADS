@@ -5,6 +5,12 @@
 #ifndef _Definitions_h
 #define _Definitions_h
 
+#define PENA_SCK    9   //PI_1      3
+#define PENA_MISO   10  //PC_2     13
+#define PENA_MOSI   8   //PC_3     11
+#define PENA_CS    7   //PI_0       1
+#define PENA_RESET  1   //PK_1      8
+#define PENA_DRDY   0   //PH_15    15
 
 #define SPI_DATA_MODE 0x04 //CPOL = 0; CPHA = 1 (Datasheet, p8)
 #define SPI_MODE_MASK 0x0C  // mask of CPOL and CPHA  on SPCR
