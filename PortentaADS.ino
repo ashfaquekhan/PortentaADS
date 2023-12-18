@@ -7,6 +7,7 @@
 #include "PortentaADS1299.h"
 PortentaADS1299 ADS;
 
+
 //Notch Filter
 EMGFilters myFilter3;
 EMGFilters myFilter4;
@@ -78,41 +79,76 @@ void setup() {
 //  ADS.START();                    // start sampling at the default rate
 
 //------------------------------------------------EXPERIMENTAL----------------------------------------------------------------------
-
-  ADS.verbose = true;      // Enable verbose mode for serial feedback 
-  ADS.RESET();             // Send RESET command to default all registers
-  ADS.SDATAC();            // Exit Read Data Continuous mode to communicate with ADS
-
-  ADS.WREG(CONFIG1,0b00000101); // Write to CONFIG1 register, set data rate to 256 SPS
-  ADS.WREG(CONFIG2,0b11010101); // Write to CONFIG2 register
-  ADS.WREG(CONFIG3,0b11001100); // Write to CONFIG3 register, enable bias measurement and internal reference buffer
-
-  // Write to CHxSET registers, enable all channels and connect them to normal electrode input
-  ADS.WREG(CH1SET,0b00000000); // Enable channel 1
-  ADS.WREG(CH2SET,0b00000000); // Enable channel 2
-  ADS.WREG(CH3SET,0b00000000); // Enable channel 3
-  ADS.WREG(CH4SET,0b00000000); // Enable channel 4
-  ADS.WREG(CH5SET,0b00000000); // Enable channel 5
-  ADS.WREG(CH6SET,0b00000000); // Enable channel 6
-  ADS.WREG(CH7SET,0b00000000); // Enable channel 7
-  ADS.WREG(CH8SET,0b00000000); // Enable channel 8
-
-  // Write to BIAS_SENSP and BIAS_SENSN registers, select all channels for bias drive signal
-  ADS.WREG(BIAS_SENSP,0b11111111); 
-  ADS.WREG(BIAS_SENSN,0b11111111);
-
-  // Write to LOFF_SENSP and LOFF_SENSN registers, enable lead-off detection on all channels
-  ADS.WREG(LOFF_SENSP,0b11111111);
-  ADS.WREG(LOFF_SENSN,0b11111111);
-
-  ADS.WREG(CONFIG4,0x02); // Write to CONFIG4 register
-  
-  ADS.RREGS(0x00,0x17);     // Read all registers starting at ID and ending at CONFIG4
-
-  ADS.RDATAC();            // Enter Read Data Continuous mode
-  ADS.START();             // Start the ADS1299 device
+/*
+Jumper Settings:
+JP17 : Open
+JP1  : 1-2
+JP2  : 2-3
+JP20 : 1-2
+JP6  : 1-2
+JP7  : 1-2
+JP8  : 2-3
+JP3  : Open
+JP5  : Open
+JP24 : 2-3
+JP4  : Close
+JP18 : 2-3
+JP21 : 1:2
+JP22 : 2-3
+JP23 : 1-2
+ */
+//L̥
 
 //=================================================================================================================================  
+
+//==========================================================REFERENCE EXPERIMENTAL (DOGSHIT)=================================================
+/*
+ * Connect the reference electrode to the REF_ELEC pin on the ADS1299EEG-FE board. This pin is located on the J6 connector, pin 4.
+Set the jumper JP7 to 2-3 position. This will route the REF_ELEC pin to the SRB1 pin of the ADS1299 device.
+Set the jumper JP8 to 1-2 position. This will disconnect the SRB1 pin from the BIAS_ELEC pin, which is connected to the mid-supply voltage by default.
+Set the SRB1 bit in the MISC1 register to 1. This will route the SRB1 pin to the negative input of all channels. You can do this by writing 0b00100000 to the MISC1 register.
+Optionally, you can also set the BIASREF bit in the CONFIG3 register to 1. This will use the voltage at the BIASREF pin as the bias reference voltage instead of the internal reference. You can do this by writing 0b11011100 to the CONFIG3 register.
+The new register settings for using the external reference electrode mode are:
+
+MISC1 = 0b00100000
+CONFIG3 = 0b11011100 (optional)
+ */
+ADS.verbose = true; // Enable verbose mode for serial feedback
+ADS.RESET(); // Send RESET command to default all registers
+ADS.SDATAC(); // Exit Read Data Continuous mode to communicate with ADS
+
+ADS.WREG(CONFIG1,0b00000101); // Write to CONFIG1 register, set data rate to 256 SPS
+ADS.WREG(CONFIG2,0b11010101); // Write to CONFIG2 register
+ADS.WREG(CONFIG3,0b11011100); // Write to CONFIG3 register, enable bias measurement and internal reference buffer
+
+// Write to CHxSET registers, enable all channels and connect them to normal electrode input
+ADS.WREG(CH1SET,0b00000000); // Enable channel 1
+ADS.WREG(CH2SET,0b00000000); // Enable channel 2
+ADS.WREG(CH3SET,0b00000000); // Enable channel 3
+ADS.WREG(CH4SET,0b00000000); // Enable channel 4
+ADS.WREG(CH5SET,0b00000000); // Enable channel 5
+ADS.WREG(CH6SET,0b00000000); // Enable channel 6
+ADS.WREG(CH7SET,0b00000000); // Enable channel 7
+ADS.WREG(CH8SET,0b00000000); // Enable channel 8
+
+// Write to BIAS_SENSP and BIAS_SENSN registers, select all channels for bias drive signal
+ADS.WREG(BIAS_SENSP,0b11111111);
+ADS.WREG(BIAS_SENSN,0b11111111);
+
+// Write to LOFF_SENSP and LOFF_SENSN registers, enable lead-off detection on all channels
+ADS.WREG(LOFF_SENSP,0b11111111);
+ADS.WREG(LOFF_SENSN,0b11111111);
+
+ADS.WREG(MISC1,0b00100000); // Write to MISC1 register, route the SRB1 pin to the negative input of all channels[^1^][1]
+
+ADS.WREG(CONFIG4,0x02); // Write to CONFIG4 register
+
+ADS.RREGS(0x00,0x17); // Read all registers starting at ID and ending at CONFIG4
+
+ADS.RDATAC(); // Enter Read Data Continuous mode
+ADS.START(); // Start the ADS1299 device
+//=================================================================================================================================
+
   //Serial.println("Press 'x' to begin test");    // ask for prompt
 } // end of setup
 unsigned long old_time;
